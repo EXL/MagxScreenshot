@@ -1,6 +1,8 @@
 Magx Screenshot
 ===============
 
+![MotoMAGX PNG Screenshot](image/screen_shot.png)
+
 Different ways to take screenshots on MotoMAGX devices and emulators.
 
 [fbgrab.c](fbgrab.c) - EXL: Converting `/dev/fb/0` to BMP image.
