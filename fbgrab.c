@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+
 #define RGB666_TO_RGB888(c) ((((c) & (0x3F << 0)) <<  2) | (((c) & (0x3F <<  6)) << 4) | (((c) & (0x3F << 12)) <<  6))
 
 typedef struct {
@@ -51,13 +56,16 @@ static int32_t ErrFile(const char *aFileName, const char *aMode) {
 	return 1;
 }
 
-static uint32_t *CreateBitmapFromFile(FILE *aReadFile, const display_t *aDisplay) {
+static uint32_t *CreateBitmapFromFile(uint8_t *a_fb_mmap, const display_t *aDisplay) {
 	int32_t y, x;
 	uint32_t *lBitmapRgb888 = malloc(aDisplay->size * sizeof(uint32_t));
 	for (y = 0; y < aDisplay->height; ++y)
 		for (x = 0; x < aDisplay->width; ++x) {
 			uint32_t lPixelRgb666 = 0x000000;
-			fread(&lPixelRgb666, 3, 1, aReadFile); /* RGB666 in RGB888, 3 bytes, 18-bit or 24-bit for color. */
+			uint8_t r = *a_fb_mmap; ++a_fb_mmap;
+			uint8_t g = *a_fb_mmap; ++a_fb_mmap;
+			uint8_t b = *a_fb_mmap; ++a_fb_mmap;
+			lPixelRgb666 = (b << 16) | (g << 8) | r;
 			lBitmapRgb888[x + y * aDisplay->width] = RGB666_TO_RGB888(lPixelRgb666);
 		}
 	return lBitmapRgb888;
@@ -97,11 +105,18 @@ int main(int argc, char *argv[]) {
 	lScreen.size = lScreen.height * lScreen.width;
 	lScreen.depth = 24;
 
-	FILE *lSmgFile = fopen(argv[1], "rb");
-	if (!lSmgFile)
+	int32_t fb_fd = open(argv[1], O_RDONLY);
+	if (fb_fd == EXIT_FAILURE)
 		return ErrFile(argv[1], "read");
-	uint32_t *lBitmap = CreateBitmapFromFile(lSmgFile, &lScreen);
-	fclose(lSmgFile);
+
+	uint8_t *fb_mmap = (uint8_t *) mmap(NULL, lScreen.size * lScreen.depth / 8, PROT_READ, MAP_SHARED, fb_fd, 0);
+	if (fb_mmap == MAP_FAILED)
+		return ErrFile(argv[1], "mmap");
+
+	uint32_t *lBitmap = CreateBitmapFromFile(fb_mmap, &lScreen);
+
+	munmap(fb_mmap, lScreen.size * lScreen.depth / 8);
+	close(fb_fd);
 
 	FILE *lBmpFile = fopen(argv[2], "wb");
 	if (!lBmpFile)
