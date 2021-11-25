@@ -47,7 +47,7 @@ static uint8_t *CreateBitmapFromFile(FILE *aReadFile, const display_t *aDisplay)
 }
 
 /* https://github.com/Tinker-S/libjpeg-sample/blob/master/jpeg_sample.c */
-static void CreateJpegFromBitmap(FILE *aOutPutJpegFile, const display_t *aDisplay, uint8_t *aBitmap) {
+static void CreateJpegFromBitmap(FILE *aOutPutJpegFile, const display_t *aDisplay, uint8_t *aBitmap, int32_t aQuality) {
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 
@@ -63,6 +63,7 @@ static void CreateJpegFromBitmap(FILE *aOutPutJpegFile, const display_t *aDispla
 	cinfo.in_color_space = JCS_RGB;
 
 	jpeg_set_defaults(&cinfo);
+	jpeg_set_quality(&cinfo, aQuality, TRUE);
 	jpeg_start_compress(&cinfo, TRUE);
 
 	while (cinfo.next_scanline < cinfo.image_height) {
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
 	if (!lJpegFile)
 		return ErrFile(argv[2], "write");
 
-	CreateJpegFromBitmap(lJpegFile, &lScreen, lBitmap);
+	CreateJpegFromBitmap(lJpegFile, &lScreen, lBitmap, atoi(argv[3]));
 
 	free(lBitmap);
 	fclose(lJpegFile);
