@@ -48,14 +48,14 @@ pgrab: pgrab.c
 	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
 		-I$(MOTOMAGX_DEVICE_PATH)/arm-linux-gnueabi/include \
 		pgrab.c -o pgrab \
-		-L$(MOTOMAGX_DEVICE_PATH)/arm-linux-gnueabi/lib -lpng
+		-L$(MOTOMAGX_DEVICE_PATH)/arm-linux-gnueabi/lib -lpng -lz
 	$(MOTOMAGX_DEVICE_STRIP) -s pgrab
 
 pgrab_EMU: pgrab.c
 	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
 		-I$(MOTOMAGX_EMULATOR_PATH)/include \
 		pgrab.c -o pgrab_EMU \
-		-L$(MOTOMAGX_EMULATOR_PATH)/lib -lpng
+		-L$(MOTOMAGX_EMULATOR_PATH)/lib -lqte-mt
 	$(MOTOMAGX_EMULATOR_STRIP) -s pgrab_EMU
 
 zgrab: zgrab.cpp
