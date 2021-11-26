@@ -21,6 +21,8 @@ typedef struct {
 	int32_t height;
 	uint32_t size;
 	uint32_t depth;
+	uint8_t bpp;
+	uint32_t bytes;
 } display_t;
 
 /* See: https://en.wikipedia.org/wiki/BMP_file_format */
@@ -82,14 +84,14 @@ static void WriteBmpHeader(FILE *aWriteFile, const display_t *aDisplay) {
 	bmp_header_t lBmpHeader;
 	memset(&lBmpHeader, 0, sizeof(bmp_header_t));
 	lBmpHeader.file_magic = 0x4D42;
-	lBmpHeader.file_size = aDisplay->size * 3 + 14 + 40; /* RGB888/24/3, BMP header, DIB header. */
+	lBmpHeader.file_size = aDisplay->size * aDisplay->bpp + 14 + 40; /* RGB888/24/3, BMP header, DIB header. */
 	lBmpHeader.bitmap_start = 0x00000036;
 	lBmpHeader.dib_header_size = 0x00000028;
 	lBmpHeader.bitmap_width = aDisplay->width;
 	lBmpHeader.bitmap_height = aDisplay->height;
 	lBmpHeader.color_planes = 0x0001;
 	lBmpHeader.bitmap_bpp = 0x0018;
-	lBmpHeader.bitmap_size = aDisplay->size * 3; /* RGB888/24/3. */
+	lBmpHeader.bitmap_size = aDisplay->bytes; /* RGB888/24/3. */
 	fwrite(&lBmpHeader, sizeof(bmp_header_t), 1, aWriteFile);
 }
 
@@ -98,7 +100,7 @@ static void WriteBmpBitmap(FILE *aWriteFile, const display_t *aDisplay, const ui
 	for (y = aDisplay->height - 1; y >= 0; --y)
 		for (x = 0; x < aDisplay->width; ++x) {
 			uint32_t lPixelRgb888 = aBitmap[x + y * aDisplay->width];
-			fwrite(&lPixelRgb888, 3, 1, aWriteFile);
+			fwrite(&lPixelRgb888, aDisplay->bpp, 1, aWriteFile);
 		}
 }
 
@@ -111,18 +113,20 @@ int main(int argc, char *argv[]) {
 	lScreen.height = SCR_HEIGHT;
 	lScreen.size = lScreen.height * lScreen.width;
 	lScreen.depth = SCR_DEPTH;
+	lScreen.bpp = lScreen.depth / 8;
+	lScreen.bytes = lScreen.size * lScreen.bpp;
 
 	int32_t fb_fd = open(argv[1], O_RDONLY);
 	if (fb_fd == EXIT_FAILURE)
 		return ErrFile(argv[1], "read");
 
-	uint8_t *fb_mmap = (uint8_t *) mmap(NULL, lScreen.size * lScreen.depth / 8, PROT_READ, MAP_SHARED, fb_fd, 0);
+	uint8_t *fb_mmap = (uint8_t *) mmap(NULL, lScreen.bytes, PROT_READ, MAP_SHARED, fb_fd, 0);
 	if (fb_mmap == MAP_FAILED)
 		return ErrFile(argv[1], "mmap");
 
 	uint32_t *lBitmap = CreateBitmapFromFile(fb_mmap, &lScreen);
 
-	munmap(fb_mmap, lScreen.size * lScreen.depth / 8);
+	munmap(fb_mmap, lScreen.bytes);
 	close(fb_fd);
 
 	FILE *lBmpFile = fopen(argv[2], "wb");
