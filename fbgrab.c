@@ -1,13 +1,19 @@
+/* C */
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+/* POSIX */
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
+/* Defines */
+#define SCR_WIDTH           (240)
+#define SCR_HEIGHT          (320)
+#define SCR_DEPTH           (24)
 #define RGB666_TO_RGB888(c) ((((c) & (0x3F << 0)) <<  2) | (((c) & (0x3F <<  6)) << 4) | (((c) & (0x3F << 12)) <<  6))
 
 typedef struct {
@@ -46,7 +52,8 @@ static int32_t ErrUsage(void) {
 		"Usage:\n"
 		"\t./fbgrab <device> <BMP image file>\n\n"
 		"Example:\n"
-		"\t./fbgrab /dev/fb/0 screenshot.bmp\n"
+		"\t./fbgrab /dev/fb/0 screenshot1.bmp\n"
+		"\t./fbgrab /dev/fb/1 screenshot2.bmp\n"
 	);
 	return 1;
 }
@@ -100,10 +107,10 @@ int main(int argc, char *argv[]) {
 		return ErrUsage();
 
 	display_t lScreen;
-	lScreen.width = 240;
-	lScreen.height = 320;
+	lScreen.width = SCR_WIDTH;
+	lScreen.height = SCR_HEIGHT;
 	lScreen.size = lScreen.height * lScreen.width;
-	lScreen.depth = 24;
+	lScreen.depth = SCR_DEPTH;
 
 	int32_t fb_fd = open(argv[1], O_RDONLY);
 	if (fb_fd == EXIT_FAILURE)

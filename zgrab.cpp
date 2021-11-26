@@ -1,10 +1,12 @@
-// zgrab.cpp
+// C
+#include <stdio.h>
+
+// Qt
 #include <qapplication.h>
 #include <qpixmap.h>
 #include <qwidget.h>
 
-#include <stdio.h>
-
+// Defines
 #define SCR_WIDTH  240
 #define SCR_HEIGHT 320
 
@@ -26,7 +28,7 @@ int main(int argc, char *argv[]) {
 		fprintf(
 			stderr,
 			"Usage:\n"
-			"\tzgrab screenshot.<format>\n\n"
+			"\tzgrab screenshot.<format> <quality 0-100>\n\n"
 			"Example:\n"
 			"\tzgrab screenshot.png\n"
 			"\tzgrab screenshot.bmp\n"

@@ -1,9 +1,10 @@
-// dgrab.cpp
+// C
+#include <stdio.h>
+
+// Qt
 #include <qapplication.h>
 #include <qpixmap.h>
 #include <qwidget.h>
-
-#include <stdio.h>
 
 int main(int argc, char *argv[]) {
 	if (argc >= 2 && argc <= 3) {
@@ -18,7 +19,7 @@ int main(int argc, char *argv[]) {
 		fprintf(
 			stderr,
 			"Usage:\n"
-			"\tdgrab screenshot.<format>\n\n"
+			"\tdgrab screenshot.<format> <quality 0-100>\n\n"
 			"Example:\n"
 			"\tdgrab screenshot.png\n"
 			"\tdgrab screenshot.bmp\n"
