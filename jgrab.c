@@ -24,6 +24,8 @@ typedef struct {
 	int32_t height;
 	uint32_t size;
 	uint32_t depth;
+	uint8_t bpp;
+	uint32_t bytes;
 } display_t;
 
 static int32_t ErrUsage(void) {
@@ -45,7 +47,7 @@ static int32_t ErrFile(const char *aFileName, const char *aMode) {
 
 static uint8_t *CreateBitmapFromFile(uint8_t *a_fb_mmap, const display_t *aDisplay) {
 	int32_t y, x;
-	uint8_t *lBitmapRgb888 = malloc(aDisplay->size * aDisplay->depth);
+	uint8_t *lBitmapRgb888 = malloc(aDisplay->bytes);
 	for (y = 0; y < aDisplay->height; ++y)
 		for (x = 0; x < aDisplay->width; ++x) {
 			uint32_t lPixelRgb666 = 0x000000;
@@ -54,7 +56,7 @@ static uint8_t *CreateBitmapFromFile(uint8_t *a_fb_mmap, const display_t *aDispl
 			uint8_t b = *a_fb_mmap; ++a_fb_mmap;
 			lPixelRgb666 = (b << 16) | (g << 8) | r;
 			lPixelRgb666 = RGB666_TO_RGB888(lPixelRgb666);
-			int z = (x + y * aDisplay->width) * 3;
+			int z = (x + y * aDisplay->width) * aDisplay->bpp;
 			lBitmapRgb888[z] = (uint8_t) (lPixelRgb666 >> 16) & 0xFF;
 			lBitmapRgb888[z + 1] = (uint8_t) (lPixelRgb666 >> 8) & 0xFF;
 			lBitmapRgb888[z + 2] = (uint8_t) (lPixelRgb666 >> 0) & 0xFF;
@@ -75,7 +77,7 @@ static void CreateJpegFromBitmap(FILE *aOutPutJpegFile, const display_t *aDispla
 
 	cinfo.image_width = aDisplay->width;
 	cinfo.image_height = aDisplay->height;
-	cinfo.input_components = aDisplay->depth / 8;
+	cinfo.input_components = aDisplay->bpp;
 	cinfo.in_color_space = JCS_RGB;
 
 	jpeg_set_defaults(&cinfo);
@@ -100,18 +102,20 @@ int main(int argc, char *argv[]) {
 	lScreen.height = SCR_HEIGHT;
 	lScreen.size = lScreen.height * lScreen.width;
 	lScreen.depth = SCR_DEPTH;
+	lScreen.bpp = SCR_DEPTH / 8;
+	lScreen.bytes = lScreen.size * lScreen.bpp;
 
 	int32_t fb_fd = open(argv[1], O_RDONLY);
 	if (fb_fd == EXIT_FAILURE)
 		return ErrFile(argv[1], "read");
 
-	uint8_t *fb_mmap = (uint8_t *) mmap(NULL, lScreen.size * lScreen.depth / 8, PROT_READ, MAP_SHARED, fb_fd, 0);
+	uint8_t *fb_mmap = (uint8_t *) mmap(NULL, lScreen.bytes, PROT_READ, MAP_SHARED, fb_fd, 0);
 	if (fb_mmap == MAP_FAILED)
 		return ErrFile(argv[1], "mmap");
 
 	uint8_t *lBitmap = CreateBitmapFromFile(fb_mmap, &lScreen);
 
-	munmap(fb_mmap, lScreen.size * lScreen.depth / 8);
+	munmap(fb_mmap, lScreen.bytes);
 	close(fb_fd);
 
 	FILE *lJpegFile = fopen(argv[2], "wb");
