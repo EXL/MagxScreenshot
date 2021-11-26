@@ -87,3 +87,9 @@ zip: all
 		fbgrab.c jgrab.c dgrab.cpp zgrab.cpp \
 		fbgrab jgrab dgrab zgrab \
 		fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU
+
+tar: all
+	tar -cvf MagxScreenshot.tar \
+		fbgrab.c jgrab.c dgrab.cpp zgrab.cpp \
+		fbgrab jgrab dgrab zgrab \
+		fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU
