@@ -32,9 +32,9 @@ static int32_t ErrUsage(void) {
 	fprintf(
 		stderr,
 		"Usage:\n"
-		"\t./pgrab <device> <PNG image file> <compression 0-7>\n\n"
+		"\t./pgrab <device> <PNG image file> <compression 0-9>\n\n"
 		"Example:\n"
-		"\t./pgrab /dev/fb/0 screenshot1.png 7\n"
+		"\t./pgrab /dev/fb/0 screenshot1.png 6\n"
 		"\t./pgrab /dev/fb/1 screenshot2.png 0\n"
 	);
 	return 1;
@@ -64,6 +64,7 @@ static uint8_t *CreateBitmapFromFile(uint8_t *a_fb_mmap, const display_t *aDispl
 	return lBitmapRgb888;
 }
 
+/* http://zarb.org/~gc/html/libpng.html */
 static void CreatePngFromBitmap(FILE *aPngFile, const display_t *aDisplay, uint8_t *aBitmap, int32_t aCompression) {
 	int i;
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);

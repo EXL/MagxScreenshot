@@ -96,6 +96,7 @@ clean:
 	-rm -f fbgrab jgrab dgrab zgrab pgrab
 	-rm -f fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 	-rm -f MagxScreenshot.zip
+	-rm -f MagxScreenshot.tar
 
 zip: all
 	-zip -r -9 MagxScreenshot.zip \
