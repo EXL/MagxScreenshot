@@ -1,4 +1,4 @@
-# This Makefile was edited by EXL, 25-Nov-2021
+# This Makefile created by EXL, 25-Nov-2021
 
 MOTOMAGX_DEVICE_PATH      = /arm-eabi
 MOTOMAGX_DEVICE_CC        = $(MOTOMAGX_DEVICE_PATH)/bin/arm-linux-gnueabi-gcc
@@ -16,25 +16,19 @@ MOTOMAGX_EMULATOR_CXXFLAGS  = -pipe -DQWS -fno-exceptions -fno-rtti -Wall -W -O2
 
 all: emulator device
 
-emulator: fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU
-device: fbgrab jgrab dgrab zgrab
+device: fbgrab jgrab dgrab zgrab pgrab
 
-fbgrab_EMU: fbgrab.c
-	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
-		fbgrab.c -o fbgrab_EMU
-	$(MOTOMAGX_EMULATOR_STRIP) -s fbgrab_EMU
+emulator: fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 
 fbgrab: fbgrab.c
 	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
 		fbgrab.c -o fbgrab
 	$(MOTOMAGX_DEVICE_STRIP) -s fbgrab
 
-jgrab_EMU: jgrab.c
+fbgrab_EMU: fbgrab.c
 	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
-		-I$(MOTOMAGX_EMULATOR_PATH)/include \
-		jgrab.c -o jgrab_EMU \
-		-L$(MOTOMAGX_EMULATOR_PATH)/lib -ljpeg
-	$(MOTOMAGX_EMULATOR_STRIP) -s jgrab_EMU
+		fbgrab.c -o fbgrab_EMU
+	$(MOTOMAGX_EMULATOR_STRIP) -s fbgrab_EMU
 
 jgrab: jgrab.c
 	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
@@ -43,12 +37,26 @@ jgrab: jgrab.c
 		-L$(MOTOMAGX_DEVICE_PATH)/arm-linux-gnueabi/lib -ljpeg
 	$(MOTOMAGX_DEVICE_STRIP) -s jgrab
 
-zgrab_EMU: zgrab.cpp
-	$(MOTOMAGX_EMULATOR_CXX) $(MOTOMAGX_EMULATOR_CXXFLAGS) \
+jgrab_EMU: jgrab.c
+	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
 		-I$(MOTOMAGX_EMULATOR_PATH)/include \
-		zgrab.cpp -o zgrab_EMU \
-		-L$(MOTOMAGX_EMULATOR_PATH)/lib -lqte-mt
-	$(MOTOMAGX_EMULATOR_STRIP) -s zgrab_EMU
+		jgrab.c -o jgrab_EMU \
+		-L$(MOTOMAGX_EMULATOR_PATH)/lib -ljpeg
+	$(MOTOMAGX_EMULATOR_STRIP) -s jgrab_EMU
+
+pgrab: pgrab.c
+	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
+		-I$(MOTOMAGX_DEVICE_PATH)/arm-linux-gnueabi/include \
+		pgrab.c -o pgrab \
+		-L$(MOTOMAGX_DEVICE_PATH)/arm-linux-gnueabi/lib -lpng
+	$(MOTOMAGX_DEVICE_STRIP) -s pgrab
+
+pgrab_EMU: pgrab.c
+	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
+		-I$(MOTOMAGX_EMULATOR_PATH)/include \
+		pgrab.c -o pgrab_EMU \
+		-L$(MOTOMAGX_EMULATOR_PATH)/lib -lpng
+	$(MOTOMAGX_EMULATOR_STRIP) -s pgrab_EMU
 
 zgrab: zgrab.cpp
 	$(MOTOMAGX_DEVICE_CXX) $(MOTOMAGX_DEVICE_CXXFLAGS) \
@@ -60,12 +68,12 @@ zgrab: zgrab.cpp
 		-L$(MOTOMAGX_DEVICE_PATH)/lib/ezx-zn5/lib -lqte-mt
 	$(MOTOMAGX_DEVICE_STRIP) -s zgrab
 
-dgrab_EMU: dgrab.cpp
+zgrab_EMU: zgrab.cpp
 	$(MOTOMAGX_EMULATOR_CXX) $(MOTOMAGX_EMULATOR_CXXFLAGS) \
 		-I$(MOTOMAGX_EMULATOR_PATH)/include \
-		dgrab.cpp -o dgrab_EMU \
+		zgrab.cpp -o zgrab_EMU \
 		-L$(MOTOMAGX_EMULATOR_PATH)/lib -lqte-mt
-	$(MOTOMAGX_EMULATOR_STRIP) -s dgrab_EMU
+	$(MOTOMAGX_EMULATOR_STRIP) -s zgrab_EMU
 
 dgrab: dgrab.cpp
 	$(MOTOMAGX_DEVICE_CXX) $(MOTOMAGX_DEVICE_CXXFLAGS) \
@@ -77,19 +85,26 @@ dgrab: dgrab.cpp
 		-L$(MOTOMAGX_DEVICE_PATH)/lib/ezx-zn5/lib -lqte-mt
 	$(MOTOMAGX_DEVICE_STRIP) -s dgrab
 
+dgrab_EMU: dgrab.cpp
+	$(MOTOMAGX_EMULATOR_CXX) $(MOTOMAGX_EMULATOR_CXXFLAGS) \
+		-I$(MOTOMAGX_EMULATOR_PATH)/include \
+		dgrab.cpp -o dgrab_EMU \
+		-L$(MOTOMAGX_EMULATOR_PATH)/lib -lqte-mt
+	$(MOTOMAGX_EMULATOR_STRIP) -s dgrab_EMU
+
 clean:
-	-rm -f fbgrab jgrab dgrab zgrab
-	-rm -f fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU
+	-rm -f fbgrab jgrab dgrab zgrab pgrab
+	-rm -f fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 	-rm -f MagxScreenshot.zip
 
 zip: all
 	-zip -r -9 MagxScreenshot.zip \
-		fbgrab.c jgrab.c dgrab.cpp zgrab.cpp \
-		fbgrab jgrab dgrab zgrab \
-		fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU
+		fbgrab.c jgrab.c pgrab.c dgrab.cpp zgrab.cpp \
+		fbgrab jgrab dgrab zgrab pgrab \
+		fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 
 tar: all
-	tar -cvf MagxScreenshot.tar \
-		fbgrab.c jgrab.c dgrab.cpp zgrab.cpp \
-		fbgrab jgrab dgrab zgrab \
-		fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU
+	-tar -cvf MagxScreenshot.tar \
+		fbgrab.c jgrab.c pgrab.c dgrab.cpp zgrab.cpp \
+		fbgrab jgrab dgrab zgrab pgrab \
+		fbgrab_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
