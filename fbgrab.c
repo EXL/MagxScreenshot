@@ -56,7 +56,7 @@ static int32_t ErrUsage(void) {
 		"Example:\n"
 		"\t./fbgrab /dev/fb/0 screenshot1.bmp\n"
 		"\t./fbgrab /dev/fb/1 screenshot2.bmp\n"
-		"\t./fbgrab /dev/fb/1 stdout > screenshot3.bmp\n"
+		"\t./fbgrab /dev/fb/0 stdout > screenshot3.bmp\n"
 	);
 	return 1;
 }
