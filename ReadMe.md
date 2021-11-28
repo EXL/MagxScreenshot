@@ -5,9 +5,10 @@ Magx Screenshot
 
 Different ways to take screenshots on MotoMAGX devices and emulators.
 
-* [fbgrab.c](fbgrab.c) - EXL: Converting `/dev/fb/0` and `/dev/fb/1` to the BMP image.
-* [jgrab.c](jgrab.c) - EXL: Converting `/dev/fb/0` and `/dev/fb/1` to the JPEG image.
-* [pgrab.c](pgrab.c) - EXL: Converting `/dev/fb/0` and `/dev/fb/1` to the PNG image.
+* [fbgrab.c](fbgrab.c) - EXL: Converting `/dev/fb/0` or `/dev/fb/1` to the BMP image.
+* [fbdump.c](fbdump.c) - EXL: Dumping `/dev/fb/0` or `/dev/fb/1` to the RAW bitmap file.
+* [jgrab.c](jgrab.c) - EXL: Converting `/dev/fb/0` or `/dev/fb/1` to the JPEG image.
+* [pgrab.c](pgrab.c) - EXL: Converting `/dev/fb/0` or `/dev/fb/1` to the PNG image.
 * [zgrab.cpp](zgrab.cpp) - Ant-ON: Using transparent `QWidget` on top of screen.
 * [dgrab.cpp](dgrab.cpp) - EXL: Using `QApplication::desktop()` and `QPixmap::grabWindow()` methods.
 
