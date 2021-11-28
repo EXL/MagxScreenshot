@@ -56,6 +56,7 @@ static int32_t ErrUsage(void) {
 		"Example:\n"
 		"\t./fbgrab /dev/fb/0 screenshot1.bmp\n"
 		"\t./fbgrab /dev/fb/1 screenshot2.bmp\n"
+		"\t./fbgrab /dev/fb/1 stdout > screenshot3.bmp\n"
 	);
 	return 1;
 }
@@ -129,7 +130,11 @@ int main(int argc, char *argv[]) {
 	munmap(fb_mmap, lScreen.bytes);
 	close(fb_fd);
 
-	FILE *lBmpFile = fopen(argv[2], "wb");
+	FILE *lBmpFile = NULL;
+	if (!strcmp("stdout", argv[2]))
+		lBmpFile = stdout;
+	else
+		lBmpFile = fopen(argv[2], "wb");
 	if (!lBmpFile)
 		return ErrFile(argv[2], "write");
 	WriteBmpHeader(lBmpFile, &lScreen);
