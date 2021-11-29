@@ -85,13 +85,13 @@ static void WriteBmpHeader(FILE *aWriteFile, const display_t *aDisplay) {
 	bmp_header_t lBmpHeader;
 	memset(&lBmpHeader, 0, sizeof(bmp_header_t));
 	lBmpHeader.file_magic = 0x4D42;
-	lBmpHeader.file_size = aDisplay->size * aDisplay->bpp + 14 + 40; /* RGB888/24/3, BMP header, DIB header. */
+	lBmpHeader.file_size = aDisplay->bytes + 14 + 40; /* RGB888/24/3, BMP header, DIB header. */
 	lBmpHeader.bitmap_start = 0x00000036;
 	lBmpHeader.dib_header_size = 0x00000028;
 	lBmpHeader.bitmap_width = aDisplay->width;
 	lBmpHeader.bitmap_height = aDisplay->height;
 	lBmpHeader.color_planes = 0x0001;
-	lBmpHeader.bitmap_bpp = 0x0018;
+	lBmpHeader.bitmap_bpp = aDisplay->depth;
 	lBmpHeader.bitmap_size = aDisplay->bytes; /* RGB888/24/3. */
 	fwrite(&lBmpHeader, sizeof(bmp_header_t), 1, aWriteFile);
 }
