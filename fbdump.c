@@ -66,8 +66,9 @@ static int32_t ErrFile(const char *aFileName, const char *aMode) {
 	return 1;
 }
 
+#if 0
 /* See https://github.com/iven/e680_fb2bmp/blob/master/src/main.c */
-static void WriteBmpHeader(FILE *aWriteFile, const display_t *aDisplay) {
+static void WriteBmpHeader16(FILE *aWriteFile, const display_t *aDisplay) {
 	bmp_header_t lBmpHeader;
 	memset(&lBmpHeader, 0, sizeof(bmp_header_t));
 	lBmpHeader.file_magic = 0x4D42;
@@ -83,7 +84,7 @@ static void WriteBmpHeader(FILE *aWriteFile, const display_t *aDisplay) {
 	fwrite(&lBmpHeader, sizeof(bmp_header_t), 1, aWriteFile);
 }
 
-static void WriteBmpBitmap(FILE *aWriteFile, const display_t *aDisplay, const uint8_t *aDump) {
+static void WriteBmpBitmap16(FILE *aWriteFile, const display_t *aDisplay, const uint8_t *aDump) {
 	if (aDisplay->depth == 16) {
 		uint32_t mask_565[3] = { 0xF800, 0x07E0, 0x001F };
 		fwrite(mask_565, sizeof(uint32_t), 3, aWriteFile);
@@ -93,6 +94,39 @@ static void WriteBmpBitmap(FILE *aWriteFile, const display_t *aDisplay, const ui
 			for (x = 0; x < aDisplay->width; ++x) {
 				uint16_t lPixel = lPixelPtr[x + y * aDisplay->width];
 				fwrite(&lPixel, aDisplay->bpp, 1, aWriteFile);
+			}
+	} else
+		fprintf(stderr, "Error: BMP support for %d-bit depth not yet implemented!\n", aDisplay->depth);
+}
+#endif
+
+static void WriteBmpHeader(FILE *aWriteFile, const display_t *aDisplay) {
+	bmp_header_t lBmpHeader;
+	memset(&lBmpHeader, 0, sizeof(bmp_header_t));
+	lBmpHeader.file_magic = 0x4D42;
+	lBmpHeader.file_size = aDisplay->size * 3 + 14 + 40;
+	lBmpHeader.bitmap_start = 0x00000036;
+	lBmpHeader.dib_header_size = 0x00000028;
+	lBmpHeader.bitmap_width = aDisplay->width;
+	lBmpHeader.bitmap_height = aDisplay->height;
+	lBmpHeader.color_planes = 0x0001;
+	lBmpHeader.bitmap_bpp = 24;
+	lBmpHeader.bitmap_size = aDisplay->size * 3;
+	fwrite(&lBmpHeader, sizeof(bmp_header_t), 1, aWriteFile);
+}
+
+static void WriteBmpBitmap(FILE *aWriteFile, const display_t *aDisplay, const uint8_t *aDump) {
+	if (aDisplay->depth == 16) {
+		int32_t y, x;
+		uint16_t *lPixelPtr = (uint16_t *) aDump;
+		for (y = aDisplay->height - 1; y >= 0; --y)
+			for (x = 0; x < aDisplay->width; ++x) {
+				uint16_t lPixel = lPixelPtr[x + y * aDisplay->width];
+				uint8_t r = ((lPixel & 0xF800) >> 11) << 3;
+				uint8_t g = ((lPixel & 0x7E0) >> 5) << 2;
+				uint8_t b = (lPixel & 0x1F) << 3;
+				uint32_t lBmpPixel = r << 16 | g << 8 | b;
+				fwrite(&lBmpPixel, 3, 1, aWriteFile);
 			}
 	} else
 		fprintf(stderr, "Error: BMP support for %d-bit depth not yet implemented!\n", aDisplay->depth);
