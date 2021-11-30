@@ -53,9 +53,10 @@ static int32_t ErrUsage(void) {
 		"Usage:\n"
 		"\t./fbdump <device> <dumpfile> <bpp>\n\n"
 		"Example:\n"
-		"\t./fbdump /dev/fb/0 screenshot.bmp 16 -bmp\n\n"
+		"\t./fbdump /dev/fb/0 screenshot.bmp 16 -bmp16\n"
+		"\t./fbdump /dev/fb/0 screenshot.bmp 16 -bmp24\n\n"
 		"\t./fbdump /dev/fb/0 screenshot.raw 16\n"
-		"\t./fbdump /dev/fb/1 screenshot.raw 32\n"
+		"\t./fbdump /dev/fb/1 screenshot.raw 24\n"
 		"\t./fbdump /dev/fb/0 stdout 24 > screenshot.raw\n"
 	);
 	return 1;
@@ -66,7 +67,6 @@ static int32_t ErrFile(const char *aFileName, const char *aMode) {
 	return 1;
 }
 
-#if 0
 /* See https://github.com/iven/e680_fb2bmp/blob/master/src/main.c */
 static void WriteBmpHeader16(FILE *aWriteFile, const display_t *aDisplay) {
 	bmp_header_t lBmpHeader;
@@ -98,7 +98,6 @@ static void WriteBmpBitmap16(FILE *aWriteFile, const display_t *aDisplay, const 
 	} else
 		fprintf(stderr, "Error: BMP support for %d-bit depth not yet implemented!\n", aDisplay->depth);
 }
-#endif
 
 static void WriteBmpHeader(FILE *aWriteFile, const display_t *aDisplay) {
 	bmp_header_t lBmpHeader;
@@ -175,9 +174,12 @@ int main(int argc, char *argv[]) {
 	if (!lDumpFile)
 		return ErrFile(argv[2], "write");
 
-	if (argc == 5 && !strcmp("-bmp", argv[4])) {
+	if (argc == 5 && !strcmp("-bmp24", argv[4])) {
 		WriteBmpHeader(lDumpFile, &lScreen);
 		WriteBmpBitmap(lDumpFile, &lScreen, lDump);
+	} else if (argc == 5 && !strcmp("-bmp16", argv[4])) {
+		WriteBmpHeader16(lDumpFile, &lScreen);
+		WriteBmpBitmap16(lDumpFile, &lScreen, lDump);
 	} else
 		CreateDumpFromFb(lDumpFile, &lScreen, lDump);
 	free(lDump);
