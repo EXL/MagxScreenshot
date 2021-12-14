@@ -16,9 +16,9 @@ MOTOMAGX_EMULATOR_CXXFLAGS  = -pipe -DQWS -fno-exceptions -fno-rtti -Wall -W -O2
 
 all: emulator device
 
-device: fbgrab fbdump jgrab dgrab zgrab pgrab
+device: fbgrab fbdump ograb jgrab dgrab zgrab pgrab
 
-emulator: fbgrab_EMU fbdump_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
+emulator: fbgrab_EMU fbdump_EMU ograb_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 
 fbgrab: fbgrab.c
 	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
@@ -39,6 +39,16 @@ fbdump_EMU: fbdump.c
 	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
 		fbdump.c -o fbdump_EMU
 	$(MOTOMAGX_EMULATOR_STRIP) -s fbdump_EMU
+
+ograb: ograb.c
+	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
+		ograb.c -o ograb
+	$(MOTOMAGX_DEVICE_STRIP) -s ograb
+
+ograb_EMU: ograb.c
+	$(MOTOMAGX_EMULATOR_CC) $(MOTOMAGX_EMULATOR_CFLAGS) \
+		ograb.c -o ograb_EMU
+	$(MOTOMAGX_EMULATOR_STRIP) -s ograb_EMU
 
 jgrab: jgrab.c
 	$(MOTOMAGX_DEVICE_CC) $(MOTOMAGX_DEVICE_CFLAGS) \
@@ -103,19 +113,19 @@ dgrab_EMU: dgrab.cpp
 	$(MOTOMAGX_EMULATOR_STRIP) -s dgrab_EMU
 
 clean:
-	-rm -f fbgrab fbdump jgrab dgrab zgrab pgrab
-	-rm -f fbgrab_EMU fbdump_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
+	-rm -f fbgrab fbdump ograb jgrab dgrab zgrab pgrab
+	-rm -f fbgrab_EMU fbdump_EMU ograb_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 	-rm -f MagxScreenshot.zip
 	-rm -f MagxScreenshot.tar
 
 zip: all
 	-zip -r -9 MagxScreenshot.zip \
-		fbgrab.c fbdump.c jgrab.c pgrab.c dgrab.cpp zgrab.cpp \
-		fbgrab fbdump jgrab dgrab zgrab pgrab \
-		fbgrab_EMU fbdump_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
+		fbgrab.c fbdump.c ograb.c jgrab.c pgrab.c dgrab.cpp zgrab.cpp \
+		fbgrab fbdump ograb jgrab dgrab zgrab pgrab \
+		fbgrab_EMU fbdump_EMU ograb_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
 
 tar: all
 	-tar -cvf MagxScreenshot.tar \
-		fbgrab.c fbdump.c jgrab.c pgrab.c dgrab.cpp zgrab.cpp \
-		fbgrab fbdump jgrab dgrab zgrab pgrab \
-		fbgrab_EMU fbdump_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
+		fbgrab.c fbdump.c ograb.c jgrab.c pgrab.c dgrab.cpp zgrab.cpp \
+		fbgrab fbdump ograb jgrab dgrab zgrab pgrab \
+		fbgrab_EMU fbdump_EMU ograb_EMU jgrab_EMU dgrab_EMU zgrab_EMU pgrab_EMU
