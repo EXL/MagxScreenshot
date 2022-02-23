@@ -7,7 +7,7 @@ MOTOMAGX_DEVICE_STRIP     = $(MOTOMAGX_DEVICE_PATH)/bin/arm-linux-gnueabi-strip
 MOTOMAGX_DEVICE_CFLAGS    = -pipe -Wall -W -O2
 MOTOMAGX_DEVICE_CXXFLAGS  = -pipe -DQWS -fno-exceptions -fno-rtti -Wall -W -O2
 
-MOTOMAGX_EMULATOR_PATH      = /opt/toolchains/motomagx/emulator
+MOTOMAGX_EMULATOR_PATH      = /opt/toolchains/motoemu
 MOTOMAGX_EMULATOR_CC        = $(MOTOMAGX_EMULATOR_PATH)/bin/i686-mot-linux-gnu-gcc
 MOTOMAGX_EMULATOR_CXX       = $(MOTOMAGX_EMULATOR_PATH)/bin/i686-mot-linux-gnu-g++
 MOTOMAGX_EMULATOR_STRIP     = $(MOTOMAGX_EMULATOR_PATH)/bin/i686-mot-linux-gnu-strip
