@@ -1,5 +1,5 @@
 # This Makefile created by EXL, 04-Dec-2021
-# Only for pgrab
+# Only for pgrab and dgrab
 
 EZX_DEVICE_PATH      = /opt/toolchains/motoezx
 EZX_DEVICE_CC        = $(EZX_DEVICE_PATH)/crosstool/bin/arm-linux-gnu-gcc
@@ -8,15 +8,24 @@ EZX_DEVICE_STRIP     = $(EZX_DEVICE_PATH)/crosstool/bin/arm-linux-gnu-strip
 EZX_DEVICE_CFLAGS    = -pipe -Wall -W -O2
 EZX_DEVICE_CXXFLAGS  = -pipe -DQWS -fno-exceptions -fno-rtti -Wall -W -O2
 
-all: pgrab
+all: pgrab dgrab
 
 pgrab: pgrab.c
 	$(EZX_DEVICE_CC) $(EZX_DEVICE_CFLAGS) \
 		-I$(EZX_DEVICE_PATH)/include \
 		pgrab.c -o pgrab \
-		-Wl,-rpath-link,$(EZX_DEVICE_PATH)/e2/qt/lib \
-		-L$(EZX_DEVICE_PATH)/e2/qt/lib -lqte-mt
+		-Wl,-rpath-link,$(EZX_DEVICE_PATH)/a1200/qt/lib \
+		-L$(EZX_DEVICE_PATH)/a1200/qt/lib -lqte-mt
 	$(EZX_DEVICE_STRIP) -s pgrab
+
+dgrab: dgrab.cpp
+	$(EZX_DEVICE_CXX) $(EZX_DEVICE_CXXFLAGS) \
+    	-I$(EZX_DEVICE_PATH)/include -I$(EZX_DEVICE_PATH)/a1200/qt/include \
+    	dgrab.cpp -o dgrab \
+    	-Wl,-rpath-link,$(EZX_DEVICE_PATH)/a1200/qt/lib \
+    	-L$(EZX_DEVICE_PATH)/a1200/qt/lib -lqte-mt
+		$(EZX_DEVICE_STRIP) -s dgrab
 
 clean:
 	-rm -f pgrab
+	-rm -f dgrab
