@@ -11,8 +11,8 @@
 #include <sys/ioctl.h>
 
 /* Defines */
-#define SCR_WIDTH           (240)
-#define SCR_HEIGHT          (320)
+#define SCR_WIDTH           (176)
+#define SCR_HEIGHT          (220)
 #define BI_BITFIELDS        (0x03)
 
 typedef struct {
@@ -25,8 +25,7 @@ typedef struct {
 } display_t;
 
 /* See: https://en.wikipedia.org/wiki/BMP_file_format */
-#pragma pack(push, 1)
-typedef struct {
+typedef struct __attribute__((packed)) {
 	/* Bitmap file header */
 	uint16_t file_magic;
 	uint32_t file_size;
@@ -45,7 +44,6 @@ typedef struct {
 	uint32_t num_of_colors;
 	uint32_t num_of_important_colors;
 } bmp_header_t;
-#pragma pack(pop)
 
 static int32_t ErrUsage(void) {
 	fprintf(
@@ -86,9 +84,9 @@ static void WriteBmpHeader16(FILE *aWriteFile, const display_t *aDisplay) {
 
 static void WriteBmpBitmap16(FILE *aWriteFile, const display_t *aDisplay, const uint8_t *aDump) {
 	if (aDisplay->depth == 16) {
-		/* RGB565 */
-		uint32_t mask_565[3] = { 0xF800, 0x07E0, 0x001F };
-		fwrite(mask_565, sizeof(uint32_t), 3, aWriteFile);
+		/* RGB555 */
+		uint32_t mask_555[3] = { 0x7C00, 0x03E0, 0x001F };
+		fwrite(mask_555, sizeof(uint32_t), 3, aWriteFile);
 		int32_t y, x;
 		uint16_t *lPixelPtr = (uint16_t *) aDump;
 		for (y = aDisplay->height - 1; y >= 0; --y)
@@ -121,12 +119,12 @@ static void WriteBmpBitmap(FILE *aWriteFile, const display_t *aDisplay, const ui
 		uint16_t *lPixelPtr = (uint16_t *) aDump;
 		for (y = aDisplay->height - 1; y >= 0; --y)
 			for (x = 0; x < aDisplay->width; ++x) {
-				uint16_t lPixel = lPixelPtr[x + y * aDisplay->width];
+				uint32_t lPixel = lPixelPtr[x + y * aDisplay->width];
 
-				/* RGB565 => RGB888 */
-				uint8_t r = ((lPixel & 0xF800) >> 11) << 3;
-				uint8_t g = ((lPixel & 0x7E0) >> 5) << 2;
-				uint8_t b = (lPixel & 0x1F) << 3;
+				/* RGB555 => RGB888 */
+				uint8_t r = (lPixel & 0x7C00) >> 9;
+				uint8_t g = (lPixel & 0x03E0) >> 6;
+				uint8_t b = (lPixel & 0x001F) << 3;
 
 				uint32_t lBmpPixel = r << 16 | g << 8 | b;
 				fwrite(&lBmpPixel, 3, 1, aWriteFile);

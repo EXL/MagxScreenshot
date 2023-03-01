@@ -1,0 +1,20 @@
+# This Makefile created by EXL, 01-Mar-2023
+# Only for fbdump
+
+EZX_DEVICE_PATH      = /opt/toolchains/motoezx
+EZX_DEVICE_CC        = $(EZX_DEVICE_PATH)/crosstool/bin/arm-linux-gnu-gcc
+EZX_DEVICE_CXX       = $(EZX_DEVICE_PATH)/crosstool/bin/arm-linux-gnu-g++
+EZX_DEVICE_STRIP     = $(EZX_DEVICE_PATH)/crosstool/bin/arm-linux-gnu-strip
+EZX_DEVICE_CFLAGS    = -pipe -Wall -W -O2
+EZX_DEVICE_CXXFLAGS  = -pipe -DQWS -fno-exceptions -fno-rtti -Wall -W -O2
+
+all: fbdump
+
+fbdump: fbdump_e398.c
+	$(EZX_DEVICE_CC) $(EZX_DEVICE_CFLAGS) \
+		-I$(EZX_DEVICE_PATH)/include \
+		fbdump_e398.c -o fbdump_e398
+	$(EZX_DEVICE_STRIP) -s fbdump_e398
+
+clean:
+	-rm -f fbdump_e398
